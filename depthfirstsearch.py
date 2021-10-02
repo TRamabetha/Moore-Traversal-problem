@@ -4,14 +4,14 @@ def createMaze():
 
     maze = []
 
-    #"DRUURR"
-    maze.append(["#","#", "#", "#", "#", "#","#"])
-    maze.append(["#"," ", " ", " ", "#", " ","#"])
-    maze.append([" "," ", "#", " ", "#", " "," "])
-    maze.append(["#"," ", "#", " ", " ", " ","#"])
-    maze.append(["#"," ", "#", "#", "#", " "," "])
-    maze.append(["#"," ", " ", " ", "#", " ","#"])
-    maze.append(["#","#", "#", "#", "#", "#","#"])
+    maze.append(["#","#", "#", "#", "#", "#", "#", "#", "#"])
+    maze.append(["#"," ", "#", "#", " ", "#", "#", " ", " "])
+    maze.append(["#"," ", "#", " ", " ", " ", "#", " ", "#"])
+    maze.append([" "," ", " ", " ", "#", " ", "#", " ", "#"])
+    maze.append(["#"," ", "#", " ", " ", " ", " ", " ", "#"])
+    maze.append(["#"," ", "#", " ", "#", " ", "#", "#", " "])
+    maze.append([" "," ", " ", " ", " ", " ", " ", " ", "#"])
+    maze.append(["#","#", "#", "#", "#", "#", "#", "#", "#"])
 
     return maze
 
@@ -82,6 +82,10 @@ def valid(maze, row, moves):
 
 
 def findEnd(maze,row, moves):
+    
+    if moves == "":
+        return False
+    
     print("test :" + moves)
     
     i = row
@@ -97,43 +101,98 @@ def findEnd(maze,row, moves):
             j += 1
             i -= 1
 
-        elif move == "D" :
+        elif move == "D" and i < maze.__len__() -1 :
             j += 1
             i += 1
-            
+    
     if j == maze[0].__len__()-1:
         print("Found: " + moves)
         printMaze(maze, row, moves)
         return True
     return False
 
+def DFS(maze):
+    start = []
+    
+    for row in range(0,len(maze)):
+        if maze[row][0] == " ":
+            start.append(row)
+    
+    row = start.pop(0)
+    
+    explored=[]
+    frontier=[]
+    
+    explored.append(str(row))
+    frontier.append("")
+    dfsPath=""
+    
+    while len(frontier)>0 :
+        
+        currCell=frontier.pop()
+        
+        if findEnd(maze, row, dfsPath):
+            break
+        
+        for d in 'URD':
+            childCell = currCell + d
+            if valid(maze, row, childCell):
+                if childCell in explored:
+                    continue
+                explored.append(childCell)
+                frontier.append(childCell)
+                dfsPath=currCell
+        
+        if len(frontier)==1 and not findEnd(maze, row, dfsPath) and start.__len__() >0:
+            explored =[]
+            frontier =[]
+            dfsPath=""
+            row = start.pop(0)
+            explored.append(str(row))
+            frontier.append("")
+
+
+def BFS(maze):
+    start = []
+    
+    for row in range(0,len(maze)):
+        if maze[row][0] == " ":
+            start.append(row)
+    
+    row = start.pop(0)
+    
+    explored=[]
+    frontier=[]
+    
+    explored.append(str(row))
+    frontier.append("")
+    bfsPath=""
+    
+    while len(frontier)>0 :
+        
+        currCell=frontier.pop(0)
+        
+        if findEnd(maze, row, bfsPath):
+            break
+        
+        for d in 'URD':
+            childCell = currCell + d
+            if valid(maze, row, childCell):
+                if childCell in explored:
+                    continue
+                explored.append(childCell)
+                frontier.append(childCell)
+                bfsPath=currCell
+        
+        if len(frontier)==1 and not findEnd(maze, row, bfsPath) and start.__len__() >0:
+            explored =[]
+            frontier =[]
+            bfsPath=""
+            row = start.pop(0)
+            explored.append(str(row))
+            frontier.append("")
 # MAIN ALGORITHM
 
-nums = []
-nums.append("")
-add = ""
 maze  = createMaze()
-start = queue.Queue()
-
-for row in range(0,maze.__len__()):
-    if maze[row][0] == " ":
-        start.put(row)
-
-row = start.get()
-
-while not findEnd(maze, row, add) and start.not_empty: 
-    if nums.__len__()==0:
-        nums.append("")
-        add = ""
-        row = start.get()
-
-    add = nums.pop()
-    #print(add)
-    print("row :" + str(row+1))
-    for j in ["R", "U", "D"]:
-        put = add + j
-        print("Added Path :" + put)
-        if valid(maze, row, put) and not(put.__len__() == maze[0].__len__()):
-            nums.append(put)
-        else:
-            break
+DFS(maze)
+BFS(maze)
